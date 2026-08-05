@@ -1,0 +1,10 @@
+{
+    "domain": "esphome_packages_updater",
+    "name": "ESPHome Packages Updater",
+    "version": "0.0.1",
+    "codeowners": ["@pieterjvt"],
+    "config_flow": true,
+    "documentation": "https://github.com/ludero-git/esphome-packages-updater",
+    "integration_type": "service",
+    "iot_class": "cloud_polling"
+}

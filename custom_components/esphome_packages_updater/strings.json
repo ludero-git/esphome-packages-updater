@@ -1,0 +1,28 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "ESPHome Packages Updater",
+                "description": "Set up the update interval and behavior.",
+                "data": {
+                    "interval": "Update interval (minutes)",
+                    "skip_nonexistent": "Skip devices with unknown compilation time"
+                }
+            }
+        },
+        "abort": {
+            "single_instance_allowed": "Already configured. Only one instance is allowed."
+        }
+    },
+    "options": {
+        "step": {
+            "init": {
+                "title": "ESPHome Packages Updater Options",
+                "data": {
+                    "interval": "Update interval (minutes)",
+                    "skip_nonexistent": "Skip devices with unknown compilation time"
+                }
+            }
+        }
+    }
+}
