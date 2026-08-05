@@ -214,7 +214,7 @@ async def _get_config_data(
 
     device_name = esphome_block.get("friendly_name")
     if not device_name:
-        raw_name = esphome_block.get("device_name")
+        raw_name = esphome_block.get("name")
         device_name = _slugify_device_name(raw_name) if raw_name else None
 
     if not device_name:

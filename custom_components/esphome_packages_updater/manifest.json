@@ -1,7 +1,7 @@
 {
     "domain": "esphome_packages_updater",
     "name": "ESPHome Packages Updater",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "codeowners": ["@pieterjvt"],
     "config_flow": true,
     "documentation": "https://github.com/ludero-git/esphome-packages-updater",
