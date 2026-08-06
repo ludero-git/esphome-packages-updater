@@ -89,7 +89,7 @@ async def load_secrets(hass: HomeAssistant, esphome_path: Path) -> dict[str, str
             with open(secrets_path, "r", encoding="utf-8") as f:
                 data = yaml.safe_load(f)
         except Exception:
-            _LOGGER.exception("Failed to parse secrets.yaml at %s", secrets_path)
+            _LOGGER.debug("Failed to parse secrets.yaml at %s", secrets_path)
             return {}
         return data if isinstance(data, dict) else {}
 
@@ -154,7 +154,7 @@ def _parse_config(
                 secrets,
             ).get_single_data()
     except Exception:
-        _LOGGER.exception("Failed to parse %s", config_path)
+        _LOGGER.debug("Failed to parse %s", config_path)
         return None
 
 
@@ -163,7 +163,7 @@ def _extract_packages(package_list: dict):
     packages = []
 
     if not isinstance(package_list, dict):
-        _LOGGER.warning("Invalid packages block")
+        _LOGGER.debug("Invalid packages block")
         return []
 
     for name, data in package_list.items():
@@ -171,7 +171,7 @@ def _extract_packages(package_list: dict):
             # Parse format "github://username/repository/[folder/]file-path.yml[@branch-or-tag]".
 
             if not data.startswith("github://"):
-                _LOGGER.warning("Only github shorthand is supported; skipping package %s", data)
+                _LOGGER.debug("Only github shorthand is supported; skipping package %s", data)
                 continue
 
             pattern = r"^github://([^/]+)/([^/]+)/([^@]+)(?:@(.+))?$"
@@ -182,14 +182,14 @@ def _extract_packages(package_list: dict):
                 package = ESPHomePackage(f"https://github.com/{user}/{repo}", [path], branch)
                 packages.append(package)
             else:
-                _LOGGER.warning("Failed to extract repo details; skipping package %s", name)
+                _LOGGER.debug("Failed to extract repo details; skipping package %s", name)
                 continue
         else:
             # Parse format "https://github.com/username/repository".
 
             url = data.get("url", None)
             if not url:
-                _LOGGER.warning("Failed to extract url; skipping package %s", name)
+                _LOGGER.debug("Failed to extract url; skipping package %s", name)
                 continue
 
             paths = []
@@ -203,7 +203,7 @@ def _extract_packages(package_list: dict):
                 if path:
                     paths.append(path)
                 else:
-                    _LOGGER.warning("Failed to extract path; skipping file %s", file)
+                    _LOGGER.debug("Failed to extract path; skipping file %s", file)
                     continue
 
             package = ESPHomePackage(
@@ -227,18 +227,18 @@ async def parse_config_file(hass: HomeAssistant, config_path: Path, secrets):
     )
 
     if not parsed:
-        _LOGGER.exception("Failed to parse %s; skipping file", config_path)
+        _LOGGER.debug("Failed to parse %s; skipping file", config_path)
         return None
 
     esphome_block = parsed.get("esphome")
     if not esphome_block:
-        _LOGGER.warning("No esphome block found in %s; skipping file", config_path)
+        _LOGGER.debug("No esphome block found in %s; skipping file", config_path)
         return None
 
     raw_name = esphome_block.get("name")
 
     if not raw_name:
-        _LOGGER.warning("No device name found in %s; skipping file", config_path)
+        _LOGGER.debug("No device name found in %s; skipping file", config_path)
         return None
 
     friendly_name = esphome_block.get("friendly_name")
@@ -247,7 +247,7 @@ async def parse_config_file(hass: HomeAssistant, config_path: Path, secrets):
 
     packages_block = parsed.get("packages")
     if not packages_block:
-        _LOGGER.warning("No packages block found in %s; skipping file", config_path)
+        _LOGGER.debug("No packages block found in %s; skipping file", config_path)
         return None
 
     packages = _extract_packages(packages_block)
