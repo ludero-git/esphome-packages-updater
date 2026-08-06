@@ -6,12 +6,17 @@
                 "description": "Set up the update interval and behavior.",
                 "data": {
                     "interval": "Update interval (minutes)",
-                    "skip_nonexistent": "Skip devices with unknown compilation time"
+                    "expose_update_entities": "Expose update entities",
+                    "auto_install": "Automatically install updates",
+                    "selective_update_check": "Selective update check (resource intensive)"
+                },
+                "data_description": {
+                    "interval": "How often to check for updates, in minutes.",
+                    "expose_update_entities": "Create update entities so updates can be reviewed and installed manually.",
+                    "auto_install": "Install available updates automatically instead of waiting for manual approval.",
+                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default."
                 }
             }
-        },
-        "abort": {
-            "single_instance_allowed": "Already configured. Only one instance is allowed."
         }
     },
     "options": {
@@ -20,7 +25,15 @@
                 "title": "ESPHome Packages Updater Options",
                 "data": {
                     "interval": "Update interval (minutes)",
-                    "skip_nonexistent": "Skip devices with unknown compilation time"
+                    "expose_update_entities": "Expose update entities",
+                    "auto_install": "Automatically install updates",
+                    "selective_update_check": "Selective update check (resource intensive)"
+                },
+                "data_description": {
+                    "interval": "How often to check for updates, in minutes.",
+                    "expose_update_entities": "Create update entities so updates can be reviewed and installed manually.",
+                    "auto_install": "Install available updates automatically instead of waiting for manual approval.",
+                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default."
                 }
             }
         }
