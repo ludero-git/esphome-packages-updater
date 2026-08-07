@@ -104,6 +104,7 @@ class ESPHomePackagesUpdaterManager:
 
         selective = self.config.get(CONF_SELECTIVE_UPDATE_CHECK, False)
         seen_devices = []
+        newly_seen = False
 
         for file in config_files:
             device = await parse_config_file(self.hass, file, secrets)
@@ -149,9 +150,18 @@ class ESPHomePackagesUpdaterManager:
                 "|".join(sorted(pkg_hashes)).encode("utf-8")
             ).hexdigest()[:12]
 
+            if device.friendly_name not in self.installed:
+                # Make sure installed_version is never None, which
+                # prevents the update button from working on the first run.
+                self.installed[device.friendly_name] = ""
+                newly_seen = True
+
             self.devices[device.friendly_name] = DeviceStatus(device.name, device.friendly_name, latest_version)
             self.ensure_entity(device.friendly_name)
             seen_devices.append(device.friendly_name)
+
+        if newly_seen:
+            await self.async_save()
 
         for name in seen_devices:
             entity = self.entities.get(name)
