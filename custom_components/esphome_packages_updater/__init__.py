@@ -182,7 +182,7 @@ class ESPHomePackagesUpdaterManager:
                     continue
 
                 dev_name = _get_entity_device_name(self.hass, entity_id)
-                if dev_name and dev_name == name:
+                if dev_name and dev_name.lower() == name:
                     return entity
         return None
 
