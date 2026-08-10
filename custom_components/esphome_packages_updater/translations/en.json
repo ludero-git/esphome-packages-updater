@@ -8,13 +8,17 @@
                     "interval": "Update interval (minutes)",
                     "expose_update_entities": "Expose update entities",
                     "auto_install": "Automatically install updates",
-                    "selective_update_check": "Selective update check (resource intensive)"
+                    "selective_update_check": "Selective update check (resource intensive)",
+                    "remove_stale_devices": "Remove stale devices",
+                    "stale_removal_delay": "Stale device removal delay (minutes)"
                 },
                 "data_description": {
                     "interval": "How often to check for updates, in minutes.",
                     "expose_update_entities": "Create update entities so updates can be reviewed and installed manually.",
                     "auto_install": "Install available updates automatically instead of waiting for manual approval.",
-                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default."
+                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default.",
+                    "remove_stale_devices": "Automatically remove update entities and devices that no longer appear in your packages configuration or fail to parse.",
+                    "stale_removal_delay": "How long a device must remain missing before it's removed. Set to 0 to remove it as soon as it's detected as missing."
                 }
             }
         }
@@ -27,13 +31,17 @@
                     "interval": "Update interval (minutes)",
                     "expose_update_entities": "Expose update entities",
                     "auto_install": "Automatically install updates",
-                    "selective_update_check": "Selective update check (resource intensive)"
+                    "selective_update_check": "Selective update check (resource intensive)",
+                    "remove_stale_devices": "Remove stale devices",
+                    "stale_removal_delay": "Stale device removal delay (minutes)"
                 },
                 "data_description": {
                     "interval": "How often to check for updates, in minutes.",
                     "expose_update_entities": "Create update entities so updates can be reviewed and installed manually.",
                     "auto_install": "Install available updates automatically instead of waiting for manual approval.",
-                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default."
+                    "selective_update_check": "Clone the full repository and check which files changed, updating only devices that use those specific files instead of every device using the repo. This is more resource intensive than the default.",
+                    "remove_stale_devices": "Automatically remove update entities and devices that no longer appear in your packages configuration or fail to parse.",
+                    "stale_removal_delay": "How long a device must remain missing before it's removed. Set to 0 to remove it as soon as it's detected as missing."
                 }
             }
         }

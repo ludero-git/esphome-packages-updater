@@ -1,7 +1,7 @@
 {
     "domain": "esphome_packages_updater",
     "name": "ESPHome Packages Updater",
-    "version": "0.1.3",
+    "version": "0.2.3",
     "codeowners": ["@pieterjvt"],
     "config_flow": true,
     "single_config_entry": true,

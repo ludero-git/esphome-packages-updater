@@ -3,7 +3,7 @@ import hashlib
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, UTC
 from pathlib import Path
 
 from homeassistant.config_entries import ConfigEntry, ConfigEntryState
@@ -21,6 +21,8 @@ from .const import (
     CONF_EXPOSE_UPDATE_ENTITIES,
     CONF_AUTO_INSTALL,
     CONF_SELECTIVE_UPDATE_CHECK,
+    CONF_REMOVE_STALE_DEVICES,
+    CONF_STALE_REMOVAL_DELAY,
     ESPHOME_COMPILATION_TIME_FORMATS,
     ESPHOME_DEVICE_BUILDER_SLUG,
     ESPHOME_CONFIG_DIR,
@@ -29,6 +31,8 @@ from .const import (
     STORAGE_VERSION,
     INSTALL_TIMEOUT,
     INSTALL_POLL_INTERVAL,
+    DEFAULT_REMOVE_STALE_DEVICES,
+    DEFAULT_STALE_REMOVAL_DELAY,
 )
 from .config_parser import load_secrets, get_config_files, parse_config_file
 from .fetcher import sync_repo, get_last_commit_hash, get_last_commit_time, GitError
@@ -76,6 +80,8 @@ class ESPHomePackagesUpdaterManager:
         self.entities: dict[str, ESPHomePackageUpdateEntity] = {}
         self.async_add_entities: AddEntitiesCallback | None = None
 
+        self._stale_since: dict[str, datetime] = {}
+
     async def async_load(self) -> None:
         """Load data from store."""
         data = await self.store.async_load() or {}
@@ -88,11 +94,20 @@ class ESPHomePackagesUpdaterManager:
             _LOGGER.info("Selective update check setting changed; resetting installed state")
             self.installed = {}
 
+        self.devices = {
+            slug: DeviceStatus(info["name"], info["latest_version"])
+            for slug, info in data.get("devices", {}).items()
+        }
+
     async def async_save(self) -> None:
         """Save data to store."""
         await self.store.async_save({
             "installed": self.installed,
             "selective": self.config.get(CONF_SELECTIVE_UPDATE_CHECK, False),
+            "devices": {
+                slug: {"name": status.name, "latest_version": status.latest_version}
+                for slug, status in self.devices.items()
+            },
         })
 
     def ensure_entity(self, name: str) -> None:
@@ -171,7 +186,7 @@ class ESPHomePackagesUpdaterManager:
 
         return pkg_hashes, pkg_commit_times
 
-    async def _process_device_file(self, file, secrets, selective: bool, compile_times: dict) -> str | None:
+    async def _process_device_file(self, file, secrets, selective: bool, compile_times: dict):
         device = await parse_config_file(self.hass, file, secrets)
         if not device:
             return None
@@ -184,8 +199,8 @@ class ESPHomePackagesUpdaterManager:
             "|".join(sorted(pkg_hashes)).encode("utf-8")
         ).hexdigest()[:12]
 
+        ha_device = await self._find_esphome_device(device.friendly_name)
         is_new_device = device.friendly_name not in self.installed
-        ha_device = await self._find_esphome_device(device.friendly_name) if is_new_device else None
 
         if is_new_device and ha_device:
             compiled_at = compile_times.get(device.friendly_name)
@@ -202,7 +217,58 @@ class ESPHomePackagesUpdaterManager:
         self.devices[device.friendly_name] = DeviceStatus(device.name, latest_version)
         self.ensure_entity(device.friendly_name)
 
-        return device.friendly_name
+        return device.friendly_name, ha_device is not None
+
+    def _update_stale_devices(self, seen_devices: set[str], esphome_missing: set[str]) -> None:
+        if not self.config.get(CONF_REMOVE_STALE_DEVICES, DEFAULT_REMOVE_STALE_DEVICES):
+            self._stale_since.clear()
+            return
+
+        stale_now = (set(self.devices) - seen_devices) | esphome_missing
+
+        for slug in list(self._stale_since):
+            if slug not in stale_now:
+                del self._stale_since[slug]
+
+        now = datetime.now(UTC)
+        for slug in stale_now:
+            self._stale_since.setdefault(slug, now)
+
+        delay = timedelta(minutes=self.config.get(CONF_STALE_REMOVAL_DELAY, DEFAULT_STALE_REMOVAL_DELAY))
+
+        to_remove = {
+            slug for slug, since in self._stale_since.items()
+            if now - since >= delay
+        }
+
+        if not to_remove:
+            return
+
+        self._remove_devices(to_remove)
+
+        for slug in to_remove:
+            self._stale_since.pop(slug, None)
+
+    def _remove_devices(self, slugs: set[str]) -> None:
+        entity_registry = er.async_get(self.hass)
+        device_registry = dr.async_get(self.hass)
+
+        for slug in slugs:
+            self.entities.pop(slug, None)
+
+            unique_id = f"{self.entry.entry_id}_{slug}_package_update"
+            entity_id = entity_registry.async_get_entity_id("update", DOMAIN, unique_id)
+            if entity_id:
+                entity_registry.async_remove(entity_id)
+
+            device = device_registry.async_get_device(identifiers={(DOMAIN, slug)})
+            if device is not None:
+                device_registry.async_remove_device(device.id)
+
+            self.devices.pop(slug, None)
+            self.installed.pop(slug, None)
+
+        _LOGGER.info("Removed stale devices: %s", ", ".join(sorted(slugs)))
 
     async def async_run_cycle(self) -> None:
         _LOGGER.debug("Starting cycle")
@@ -214,14 +280,24 @@ class ESPHomePackagesUpdaterManager:
         compile_times = self._esphome_compile_times()
 
         seen_devices = []
+        esphome_missing = set()
         installed_before = dict(self.installed)
+        devices_before = dict(self.devices)
 
         for file in config_files:
-            name = await self._process_device_file(file, secrets, selective, compile_times)
-            if name:
-                seen_devices.append(name)
+            result = await self._process_device_file(file, secrets, selective, compile_times)
+            if not result:
+                continue
 
-        if self.installed != installed_before:
+            name, has_esphome_device = result
+            seen_devices.append(name)
+
+            if not has_esphome_device:
+                esphome_missing.add(name)
+
+        self._update_stale_devices(set(seen_devices), esphome_missing)
+
+        if self.installed != installed_before or self.devices != devices_before:
             await self.async_save()
 
         for name in seen_devices:
@@ -231,7 +307,7 @@ class ESPHomePackagesUpdaterManager:
 
         if self.config.get(CONF_AUTO_INSTALL, False):
             for name in seen_devices:
-                if self.installed.get(name) != self.devices[name].latest_version:
+                if name in self.installed and self.installed.get(name) != self.devices[name].latest_version:
                     await self.async_install_device(name)
 
     async def _find_esphome_device(self, name: str):

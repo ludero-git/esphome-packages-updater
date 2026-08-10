@@ -13,9 +13,14 @@ from .const import (
     CONF_EXPOSE_UPDATE_ENTITIES,
     CONF_AUTO_INSTALL,
     CONF_SELECTIVE_UPDATE_CHECK,
+    CONF_REMOVE_STALE_DEVICES,
+    CONF_STALE_REMOVAL_DELAY,
 
     DEFAULT_INTERVAL,
     MIN_INTERVAL,
+    DEFAULT_REMOVE_STALE_DEVICES,
+    DEFAULT_STALE_REMOVAL_DELAY,
+    MIN_STALE_REMOVAL_DELAY,
 )
 
 
@@ -36,6 +41,14 @@ def _schema(defaults: dict[str, Any]) -> vol.Schema:
                 CONF_SELECTIVE_UPDATE_CHECK,
                 default=defaults.get(CONF_SELECTIVE_UPDATE_CHECK, True),
             ): bool,
+            vol.Required(
+                CONF_REMOVE_STALE_DEVICES,
+                default=defaults.get(CONF_REMOVE_STALE_DEVICES, DEFAULT_REMOVE_STALE_DEVICES),
+            ): bool,
+            vol.Required(
+                CONF_STALE_REMOVAL_DELAY,
+                default=defaults.get(CONF_STALE_REMOVAL_DELAY, DEFAULT_STALE_REMOVAL_DELAY),
+            ): vol.All(vol.Coerce(int), vol.Range(min=MIN_STALE_REMOVAL_DELAY)),
         }
     )
 
