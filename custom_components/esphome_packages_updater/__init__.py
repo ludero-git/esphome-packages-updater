@@ -78,13 +78,22 @@ class ESPHomePackagesUpdaterManager:
 
     async def async_load(self) -> None:
         """Load data from store."""
-        data = await self.store.async_load()
-        if data:
-            self.installed = data.get("installed", {})
+        data = await self.store.async_load() or {}
+        self.installed = data.get("installed", {})
+
+        current_selective = self.config.get(CONF_SELECTIVE_UPDATE_CHECK, False)
+        stored_selective = data.get("selective")
+
+        if self.installed and stored_selective is not None and stored_selective != current_selective:
+            _LOGGER.info("Selective update check setting changed; resetting installed state")
+            self.installed = {}
 
     async def async_save(self) -> None:
         """Save data to store."""
-        await self.store.async_save({"installed": self.installed})
+        await self.store.async_save({
+            "installed": self.installed,
+            "selective": self.config.get(CONF_SELECTIVE_UPDATE_CHECK, False),
+        })
 
     def ensure_entity(self, name: str) -> None:
         if not self.config.get(CONF_EXPOSE_UPDATE_ENTITIES, True):
