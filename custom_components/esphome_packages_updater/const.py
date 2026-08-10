@@ -10,6 +10,10 @@ MIN_INTERVAL = 15
 
 UPDATE_ENTITY_PREFIX = "update."
 
+ESPHOME_COMPILATION_TIME_FORMATS = (
+    "%Y-%m-%d %H:%M:%S %z",
+    "%b %d %Y, %H:%M:%S",
+)
 ESPHOME_DEVICE_BUILDER_SLUG = "5c53de3b_esphome"
 ESPHOME_ALLOWED_NAME_CHARS = "abcdefghijklmnopqrstuvwxyz0123456789_"
 ESPHOME_CONFIG_DIR = "/config/esphome"

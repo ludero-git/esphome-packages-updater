@@ -40,7 +40,7 @@ class ESPHomePackageUpdateEntity(UpdateEntity):
         self._attr_unique_id = f"{manager.entry.entry_id}_{slug}_package_update"
         self._attr_device_info = DeviceInfo(
             identifiers={(DOMAIN, slug)},
-            name=status.friendly_name,
+            name=status.name,
         )
 
     @property
