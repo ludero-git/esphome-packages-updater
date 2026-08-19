@@ -1,6 +1,8 @@
-# ESPHome Packages Updater
+# <img width="50" height="50" align="absmiddle" alt="logo" src="custom_components/esphome_packages_updater/brand/icon.png" /> ESPHome Packages Updater
 
-Home Assistant integration that detects new ESPHome package versions and updates devices automatically or with one click.
+Home Assistant custom integration that detects new ESPHome package versions and updates devices automatically or with one click.
+
+[![Latest Release](https://img.shields.io/github/v/release/ludero-git/esphome-packages-updater?display_name=tag\&sort=semver)](https://github.com/ludero-git/esphome-packages-updater/releases/latest)
 
 ## Requirements
 
@@ -17,8 +19,29 @@ Home Assistant integration that detects new ESPHome package versions and updates
 
 ## Installation
 
-Make sure you have [HACS](https://hacs.xyz) installed. Follow [these steps](https://hacs.xyz/docs/faq/custom_repositories) and use `ludero-git/esphome-packages-updater` as the Repository URL. Search for `ESPHome Packages Updater` and download. Restart, go to devices and add `ESPHome Packages Updater`. Follow
+### Step 1: Install
+
+#### Via HACS
+
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=ludero-git&repository=esphome-packages-updater&category=integration)
+
+1. Click "Download" to install.
+2. Restart Home Assistant.
+
+#### Manually
+
+1. Copy `custom_components/esphome_packages_updater` to `<config>/custom_components/esphome_packages_updater`.
+2. Restart Home Assistant.
+
+### Step 2: Configure
+
+[![Open your Home Assistant instance and start setting up a new integration.](https://my.home-assistant.io/badges/config_flow_start.svg)](https://my.home-assistant.io/redirect/config_flow_start/?domain=esphome_packages_updater)
+
+Or manually: Go to **Settings > Devices & services > Add integration > ESPHome Packages Updater**.
+
+1. Configure options
+2. Done!
 
 ## License
 
-[MIT](LICENSE)
+[MIT](/LICENSE)
