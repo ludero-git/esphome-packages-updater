@@ -1,4 +1,4 @@
-# <img width="50" height="50" align="absmiddle" alt="logo" src="custom_components/esphome_packages_updater/brand/icon.png" /> ESPHome Packages Updater
+# <img width="50" height="50" align="absmiddle" alt="logo" src="https://raw.githubusercontent.com/ludero-git/esphome-packages-updater/master/custom_components/esphome_packages_updater/brand/icon.png" /> ESPHome Packages Updater
 
 Home Assistant custom integration that detects new ESPHome package versions and updates devices automatically or with one click.
 
