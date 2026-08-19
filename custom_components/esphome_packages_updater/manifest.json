@@ -6,6 +6,7 @@
     "config_flow": true,
     "single_config_entry": true,
     "documentation": "https://github.com/ludero-git/esphome-packages-updater",
+    "issue_tracker": "https://github.com/ludero-git/esphome-packages-updater/issues",
     "integration_type": "service",
     "iot_class": "cloud_polling"
 }
